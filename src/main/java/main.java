@@ -17,33 +17,37 @@ public class main {
 
         //create
         System.out.println(my.create("ps", "topic1", 40).getCode().name());
-        System.out.println(my.create("ps", "topic3", 0).getResponseText());
-        System.out.println(my.create("ps/topic1", "topic4", 0).isSuccess());
+        System.out.println(my.create("ps", "topic3", 0).getCode().name());
+        System.out.println(my.create("ps/topic1", "topic4", 0).getCode().name());
+//
+//        System.out.println(my.create("ps", "topicX", 40).getCode().name());
+//        System.out.println(my.create("ps/topicX", "topicY", 0).getCode().name());
+//
+//        //Discover
+//        System.out.println(my.discover().getResponseText());
+//
+//        //create again
+//        System.out.println(my.create("ps", "topic2", 40).getCode().name());
+//        System.out.println(my.create("ps/topic1","topic5", 40).getCode().name());
 
+//        System.out.println("Discover");
+//
+//        //Discover with query
+//        System.out.println(my.discover("rt=core.ps").getResponseText());
+//        System.out.println(my.discover( "ct=40").getResponseText());
+//
+//
+//
+//        //Publish
+//        System.out.println(my.publish("ps/topic3", "Hello", 0).getCode().name());
+//
+//        //Read
+//        System.out.println(my.read("ps/topic3").getResponseText());
 
-        //Discover
-        System.out.println(my.discover().getResponseText());
-
-        //create again
-        System.out.println(my.create("ps", "topic2", 40).getResponseText());
-        System.out.println(my.create("ps/topic1","topic5", 40).getCode().name());
-
-        System.out.println("Discover");
-
-        //Discover with query
-        System.out.println(my.discover("rt=core.ps").getResponseText());
-        System.out.println(my.discover( "ct=40").getResponseText());
-
-
-
-        //Publish
-        System.out.println(my.publish("ps/topic3", "Hello", 0).getCode().name());
-
-        //Read
-        System.out.println(my.read("ps/topic3").getResponseText());
-
-        //Remove
-        System.out.println(my.remove("ps/topic1/topic5").getCode().name());
+//        System.out.println(my.discover().getResponseText());
+//
+//        //Remove
+//        System.out.println(my.remove("ps/topic1/topic5").getCode().name());
 
         System.out.println(my.discover().getResponseText());
 

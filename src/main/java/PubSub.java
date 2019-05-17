@@ -64,33 +64,24 @@ public class PubSub {
     }
 
     /* Returns array of Topic objects and Confirmation Code*/
-    public CoapResponse discover() throws IOException, RuntimeException {
+    public CoapResponse discover() {
         return discover("");
     }
 
-    public CoapResponse discover(String query) throws IOException, RuntimeException {
+    public CoapResponse discover(String query) {
         Request discover = Request.newGet();
         discover.getOptions().setUriPath(".well-known/core?" + query);
 
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort());
         client.setTimeout(this.timeout);
 
-        CoapResponse response;
-        try {
-            response = client.advanced(discover);
-        } catch (RuntimeException e) {
-            throw e;
-        }
-        if (response == null) {
-            throw new IOException("NO RESPONSE, TIMEOUT");
-        }
-
+        CoapResponse response = client.advanced(discover);
 
         return response;
     }
 
     /* Returns topic and Confirmation Code */
-    public CoapResponse create(String path, String name, int ct) throws IOException, RuntimeException {
+    public CoapResponse create(String path, String name, int ct) {
 
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
         client.setTimeout(this.timeout);
@@ -99,20 +90,9 @@ public class PubSub {
         String payload = sb.toString();
 
         Request req = Request.newPost();
-        req.setPayload(payload);
-        req.getOptions().setContentFormat(ct);
+        req.setPayload(payload).getOptions().setContentFormat(ct);
 
-        CoapResponse res = null;
-        try {
-            res = client.advanced(req);
-        } catch (RuntimeException e) {
-            throw e;
-        }
-
-        if (res == null) {
-            throw new IOException("INVALID PATH");
-        }
-
+        CoapResponse res = client.advanced(req);
         return res;
     }
 
@@ -156,21 +136,11 @@ public class PubSub {
     }
 
     /* Returns Confirmation Code */
-    public CoapResponse remove(String path) throws IOException, RuntimeException {
+    public CoapResponse remove(String path) {
 
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
-        client.setTimeout(this.timeout);
-        CoapResponse res = null;
-        try {
-            res = client.delete();
 
-        } catch (RuntimeException e) {
-            throw e;
-        }
-
-        if (res == null) {
-            throw new IOException();
-        }
+        CoapResponse res = client.delete();
 
         return res;
     }
