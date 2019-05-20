@@ -8,9 +8,6 @@ import org.eclipse.californium.core.coap.Token;
 import org.eclipse.californium.core.network.RandomTokenGenerator;
 import org.eclipse.californium.core.network.config.NetworkConfig;
 
-import java.io.IOException;
-
-
 public class PubSub {
 
     private static final String SCHEME = "coap";
@@ -64,11 +61,11 @@ public class PubSub {
     }
 
     /* Returns array of Topic objects and Confirmation Code*/
-    public CoapResponse discover() {
+    public CoapResponse discover() throws  RuntimeException {
         return discover("");
     }
 
-    public CoapResponse discover(String query) {
+    public CoapResponse discover(String query) throws RuntimeException {
         Request discover = Request.newGet();
         discover.getOptions().setUriPath(".well-known/core?" + query);
 
@@ -80,25 +77,27 @@ public class PubSub {
         return response;
     }
 
-    /* Returns CoAP Response */
-    public CoapResponse create(String name, int ct, String... path) {
+    /* Returns topic and Confirmation Code */
+    public CoapResponse create(String name, int ct, String... uri) throws RuntimeException {
 
-        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
+        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), uri);
         client.setTimeout(this.timeout);
 
         StringBuilder sb = new StringBuilder().append("<").append(name).append(">;ct=").append(ct);
         String payload = sb.toString();
 
         Request req = Request.newPost();
-        req.setPayload(payload).getOptions().setContentFormat(ct);
+        req.setPayload(payload);
+        req.getOptions().setContentFormat(ct);
 
         CoapResponse res = client.advanced(req);
+
         return res;
     }
 
-    /* Returns CoAP Response */
-    public CoapResponse publish(String payload, int ct, String... path) throws IOException, RuntimeException {
-        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
+    /* Returns Confirmation Code */
+    public CoapResponse publish(String payload, int ct, String... uri) throws RuntimeException {
+        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), uri);
         client.setTimeout(this.timeout);
 
         CoapResponse res = client.put(payload, ct);
@@ -106,9 +105,9 @@ public class PubSub {
         return res;
     }
 
-    /* Returns CoAP Response */
-    public CoapResponse read(String... path) throws IOException, RuntimeException {
-        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
+    /* Returns Content and Confirmation Code */
+    public CoapResponse read(String... uri) throws RuntimeException {
+        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), uri);
         client.setTimeout(this.timeout);
 
         CoapResponse res = client.get();
@@ -116,11 +115,11 @@ public class PubSub {
         return res;
     }
 
-    /* Returns CoAP Response */
-    public CoapResponse remove(String... path) {
+    /* Returns Confirmation Code */
+    public CoapResponse remove(String... uri) throws RuntimeException {
 
-        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
-
+        CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), uri);
+        client.setTimeout(this.timeout);
         CoapResponse res = client.delete();
 
         return res;
@@ -129,15 +128,23 @@ public class PubSub {
     public class Subscription {
         private CoapClient client;
         private CoapObserveRelation relation;
-        private String path;
+        private String[] uri;
         private CoapHandler handler;
 
         //Constructor, does not subscribe
-        public Subscription(String path, CoapHandler handler) {
-            this.path = path;
+        public Subscription(CoapHandler handler, String... uri) {
+            this.uri = uri;
             this.handler = handler;
             this.relation = null;
             this.client = null;
+        }
+
+        public CoapHandler getHandler() {
+            return handler;
+        }
+
+        public void setHandler(CoapHandler handler) {
+            this.handler = handler;
         }
 
         //call this method to subscribe, can use it to subscribe to same topic again
@@ -145,7 +152,7 @@ public class PubSub {
 
             Request req = new Request(CoAP.Code.GET);
 
-            client = new CoapClient(SCHEME, getHost(), getPort(), path);
+            client = new CoapClient(SCHEME, getHost(), getPort(), uri);
             client.useExecutor();
             client.setTimeout(timeout);
 
@@ -157,11 +164,7 @@ public class PubSub {
             Token token = rand.createToken(false);
             req.setToken(token);
 
-            try {
-                relation = client.observe(req, handler);
-            } catch (RuntimeException e) {
-                throw e;
-            }
+            relation = client.observe(req, handler);
         }
 
         //call to unsubscribe
