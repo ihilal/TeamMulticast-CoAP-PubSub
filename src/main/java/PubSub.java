@@ -80,8 +80,8 @@ public class PubSub {
         return response;
     }
 
-    /* Returns topic and Confirmation Code */
-    public CoapResponse create(String path, String name, int ct) {
+    /* Returns CoAP Response */
+    public CoapResponse create(String name, int ct, String... path) {
 
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
         client.setTimeout(this.timeout);
@@ -96,47 +96,28 @@ public class PubSub {
         return res;
     }
 
-    /* Returns Confirmation Code */
-    public CoapResponse publish(String path, String payload, int ct) throws IOException, RuntimeException {
+    /* Returns CoAP Response */
+    public CoapResponse publish(String payload, int ct, String... path) throws IOException, RuntimeException {
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
         client.setTimeout(this.timeout);
 
-        CoapResponse res = null;
-        try {
-            res = client.put(payload, ct);
-
-        } catch (RuntimeException e) {
-            throw e;
-        }
-
-        if (res == null) {
-            throw new IOException(" INVALID PATH ");
-        }
+        CoapResponse res = client.put(payload, ct);
 
         return res;
     }
 
-    /* Returns Content and Confirmation Code */
-    public CoapResponse read(String path) throws IOException, RuntimeException {
+    /* Returns CoAP Response */
+    public CoapResponse read(String... path) throws IOException, RuntimeException {
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
         client.setTimeout(this.timeout);
 
-        CoapResponse res = null;
-        try {
-            res = client.get();
-        } catch (RuntimeException e) {
-            throw e;//Broker not found
-        }
-
-        if (res == null) {
-            throw new IOException(" PATH IS NOT VALID");
-        }
+        CoapResponse res = client.get();
 
         return res;
     }
 
-    /* Returns Confirmation Code */
-    public CoapResponse remove(String path) {
+    /* Returns CoAP Response */
+    public CoapResponse remove(String... path) {
 
         CoapClient client = new CoapClient(SCHEME, this.getHost(), this.getPort(), path);
 

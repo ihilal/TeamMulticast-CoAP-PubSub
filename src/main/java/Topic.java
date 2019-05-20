@@ -1,6 +1,8 @@
 import org.eclipse.californium.core.WebLink;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Set;
 
 public class Topic {
@@ -12,14 +14,11 @@ public class Topic {
     public Topic(WebLink wl) {
         this.path = wl.getURI().substring(1).split("(/)");
         this.name = this.path[this.path.length - 1];
-        int corchete = wl.toString().indexOf('[');
-
+        String corchete = wl.toString().substring(wl.toString().indexOf('[') + 1);
         try {
-            StringBuilder sb = new StringBuilder().append(wl.toString().charAt(corchete + 1)).append(wl.toString().charAt(corchete + 2));
-            this.ct = Integer.parseInt(sb.toString());
+            this.ct = Integer.parseInt(corchete.substring(0, 1));
         } catch (NullPointerException | NumberFormatException | ArrayIndexOutOfBoundsException e) {
-            StringBuilder sb = new StringBuilder().append(wl.toString().charAt(corchete + 1));
-            this.ct = Integer.parseInt(sb.toString());
+            this.ct = Integer.parseInt(corchete.substring(0, 0));
         }
     }
 
@@ -34,6 +33,7 @@ public class Topic {
             Topic t = new Topic(wl);
             t.getTopics(t, at);
         }
+        Collections.sort(at, new TopicComparator());
     }
 
     public void getTopics(Topic topic, ArrayList<Topic> at) {
@@ -55,7 +55,7 @@ public class Topic {
     }
 
     public String toString() {
-        return "name: " + this.name + "\n   |path: " + this.getPathString() + "\n       |ct: " + this.ct;
+        return this.getPathString() + "                 |ct: " + this.ct;
     }
 
     public Topic getParent() {
@@ -93,5 +93,21 @@ public class Topic {
 
     public boolean equals(Topic topic) {
         return (this.getName().equals(topic.getName()) && this.getPathString().equals(topic.getPathString()));
+    }
+
+}
+
+class TopicComparator implements Comparator<Topic> {
+    public int compare(Topic o1, Topic o2) {
+        boolean value1 = o1.getPath().length >= (o2.getPath().length);
+        if (!value1) {
+            int value2 = o1.getPathString().compareTo(o2.getPathString());
+            return value2;
+        }
+        if (value1) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
